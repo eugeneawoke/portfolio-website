@@ -1,0 +1,1412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Eugene - AI-Native Builder & Designer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,400;1,9..144,500&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink: #111a10;
+    --ink-2: #1a2318;
+    --ink-3: #0b100a;
+    --paper: #f4f1ea;
+    --paper-2: #ebe6dc;
+    --paper-3: #ded7c6;
+    --sage: #8a9e72;
+    --sage-2: #97a87e;
+    --line: rgba(244,241,234,0.16);
+    --line-dark: rgba(14,13,11,0.14);
+    --muted: #6b665c;
+    --muted-d: #aaa492;
+    --accent: #b5a96e;
+    --accent-2: #d6ca88;
+    --serif: 'Fraunces', 'Times New Roman', serif;
+    --sans: 'Inter', system-ui, sans-serif;
+    --mono: 'JetBrains Mono', ui-monospace, monospace;
+  }
+
+  html { scroll-behavior: smooth; background: var(--ink); }
+  body {
+    min-width: 320px;
+    overflow-x: hidden;
+    background: var(--ink);
+    color: var(--paper);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection { background: var(--accent); color: var(--ink); }
+  a { color: inherit; text-decoration: none; }
+  button { font: inherit; }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: .28;
+    background:
+      repeating-linear-gradient(90deg, rgba(244,241,234,.018) 0 1px, transparent 1px 80px),
+      repeating-linear-gradient(180deg, rgba(244,241,234,.014) 0 1px, transparent 1px 80px);
+  }
+
+  main, footer, .topbar, .float-pill { position: relative; z-index: 1; }
+
+  /* Menu: preserved from original behavior, simplified per request */
+  .topbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: center;
+    pointer-events: none;
+    padding: 18px 24px;
+    transition: padding .5s cubic-bezier(.2,.7,.2,1);
+  }
+
+  .topbar-shell {
+    pointer-events: auto;
+    width: 100%;
+    max-width: none;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 24px;
+    padding: 14px 22px;
+    color: var(--paper);
+    border: 1px solid transparent;
+    border-radius: 24px;
+    background: transparent;
+    backdrop-filter: blur(0);
+    -webkit-backdrop-filter: blur(0);
+    transition:
+      max-width .55s cubic-bezier(.2,.7,.2,1),
+      padding .45s cubic-bezier(.2,.7,.2,1),
+      gap .45s cubic-bezier(.2,.7,.2,1),
+      background .35s ease,
+      border-color .35s ease,
+      backdrop-filter .35s ease,
+      -webkit-backdrop-filter .35s ease,
+      box-shadow .45s ease,
+      border-radius .55s cubic-bezier(.2,.7,.2,1),
+      color .35s ease;
+  }
+
+  .topbar.dark .topbar-shell { color: var(--ink); }
+  .topbar.scrolled { padding: 16px 20px; }
+  .topbar.scrolled .topbar-shell {
+    max-width: 1080px;
+    padding: 10px 14px 10px 20px;
+    gap: 18px;
+    color: var(--ink) !important;
+    background: rgba(244, 241, 234, 0.58);
+    border-color: rgba(244,241,234,0.22);
+    backdrop-filter: blur(22px) saturate(1.5);
+    -webkit-backdrop-filter: blur(22px) saturate(1.5);
+    box-shadow: 0 14px 40px rgba(0,0,0,0.13), 0 2px 6px rgba(0,0,0,0.08);
+    border-radius: 999px;
+  }
+
+  .brand {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 400;
+    font-size: 22px;
+    line-height: 1;
+    letter-spacing: -0.01em;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    white-space: nowrap;
+  }
+
+  .brand .reg {
+    font-family: var(--sans);
+    font-style: normal;
+    font-size: 11px;
+    letter-spacing: .04em;
+    transform: translateY(-7px);
+    opacity: .7;
+  }
+
+  .nav {
+    display: flex;
+    gap: 28px;
+    justify-self: center;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+  }
+
+  .nav a {
+    position: relative;
+    padding: 6px 2px;
+    transition: opacity .2s;
+  }
+
+  .nav a:hover { opacity: .65; }
+  .nav a[data-current="true"]::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 1px;
+    background: currentColor;
+  }
+
+  .topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    justify-self: end;
+  }
+
+  .lang {
+    display: inline-flex;
+    align-items: center;
+    font-size: 12px;
+    letter-spacing: .08em;
+    gap: 6px;
+  }
+
+  .lang button {
+    appearance: none;
+    background: transparent;
+    border: 0;
+    padding: 6px 4px;
+    color: inherit;
+    cursor: pointer;
+    opacity: .5;
+    transition: opacity .2s;
+  }
+
+  .lang button.active { opacity: 1; text-decoration: underline; text-underline-offset: 4px; }
+  .lang button:hover { opacity: 1; }
+  .lang .sep { opacity: .4; user-select: none; }
+
+  .cta-pill,
+  .ghost-btn,
+  .final-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 42px;
+    padding: 10px 10px 10px 20px;
+    border-radius: 999px;
+    border: 1px solid rgba(244,241,234,.42);
+    background: transparent;
+    color: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    transition: background .25s, color .25s, border-color .25s, transform .25s;
+  }
+
+  .cta-pill .arr,
+  .ghost-btn .arr,
+  .final-cta .arr {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--accent);
+    color: var(--ink);
+    transition: transform .25s;
+  }
+
+  .cta-pill:hover,
+  .ghost-btn:hover,
+  .final-cta:hover {
+    background: rgba(244,241,234,.12);
+    border-color: rgba(244,241,234,.74);
+    transform: translateY(-1px);
+  }
+
+  .topbar.scrolled .cta-pill {
+    background: var(--ink);
+    color: var(--paper);
+    border-color: transparent;
+  }
+
+  .section-inner {
+    width: min(1280px, calc(100% - 64px));
+    margin: 0 auto;
+  }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .lux-title {
+    font-family: var(--sans);
+    font-size: clamp(42px, 7vw, 104px);
+    font-weight: 600;
+    line-height: .92;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    text-wrap: balance;
+  }
+
+  .lux-title em {
+    display: block;
+    margin-top: .05em;
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 400;
+    font-size: .78em;
+    letter-spacing: -0.03em;
+    text-transform: none;
+    color: var(--accent);
+  }
+
+  /* Hero: text only */
+  .hero {
+    min-height: 100svh;
+    display: flex;
+    align-items: flex-end;
+    background:
+      radial-gradient(48% 52% at 75% 20%, rgba(181,169,110,.16), transparent 62%),
+      radial-gradient(42% 48% at 18% 65%, rgba(151,168,126,.11), transparent 68%),
+      linear-gradient(180deg, var(--ink) 0%, var(--ink-2) 52%, var(--ink-3) 100%);
+    color: var(--paper);
+    overflow: hidden;
+  }
+
+  .hero-inner {
+    width: min(1280px, calc(100% - 64px));
+    min-height: 100svh;
+    margin: 0 auto;
+    padding: 128px 0 86px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+  }
+
+  .hero-eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 34px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: rgba(244,241,234,.68);
+  }
+
+  .hero-eyebrow .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #4ade80;
+    box-shadow: 0 0 0 4px rgba(74,222,128,.16), 0 0 18px rgba(74,222,128,.65);
+  }
+
+  .hero-eyebrow .status { color: #86efac; letter-spacing: .22em; }
+
+  .hero-title {
+    max-width: 12ch;
+    font-family: var(--serif);
+    font-size: clamp(58px, 12vw, 174px);
+    font-weight: 300;
+    line-height: .88;
+    letter-spacing: -0.045em;
+    color: var(--paper);
+    font-variation-settings: "opsz" 144;
+    text-wrap: balance;
+  }
+
+  .hero-title em {
+    font-style: italic;
+    font-weight: 400;
+    color: var(--accent);
+  }
+
+  .hero-title .light {
+    font-weight: 300;
+    color: rgba(244,241,234,.62);
+  }
+
+  .hero-sub {
+    margin-top: 38px;
+    max-width: 560px;
+    color: rgba(244,241,234,.78);
+    font-size: 17px;
+    line-height: 1.58;
+  }
+
+  .hero-meta {
+    margin-top: 46px;
+    display: grid;
+    gap: 7px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: rgba(244,241,234,.55);
+  }
+
+  .strip {
+    padding: 112px 0;
+    background: var(--sage);
+    color: var(--ink);
+  }
+
+  .strip-quote {
+    max-width: 1080px;
+    margin-top: 28px;
+    font-family: var(--serif);
+    font-weight: 300;
+    font-size: clamp(38px, 5.6vw, 82px);
+    line-height: 1.02;
+    letter-spacing: -0.035em;
+    text-wrap: balance;
+  }
+
+  .strip-quote em {
+    font-style: italic;
+    font-weight: 400;
+    color: var(--ink);
+  }
+
+  .strip-feats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-top: 76px;
+  }
+
+  .feat {
+    min-height: 220px;
+    padding: 28px;
+    border: 1px solid rgba(14,13,11,.14);
+    border-radius: 24px;
+    background: rgba(244,241,234,.24);
+  }
+
+  .feat-num, .project-num, .card-num, .help-num {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .feat-h {
+    margin-top: 38px;
+    font-family: var(--serif);
+    font-size: 28px;
+    line-height: 1.08;
+    letter-spacing: -0.015em;
+  }
+
+  .feat-d {
+    margin-top: 12px;
+    max-width: 280px;
+    color: rgba(14,13,11,.66);
+    font-size: 14.5px;
+    line-height: 1.6;
+  }
+
+  /* 21st.dev-inspired card carousel pattern adapted to standalone HTML */
+  .work {
+    padding: 130px 0 138px;
+    background: var(--ink);
+    color: var(--paper);
+    overflow: hidden;
+  }
+
+  .section-head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 360px);
+    gap: 40px;
+    align-items: end;
+    margin-bottom: 58px;
+  }
+
+  .section-copy {
+    color: var(--muted-d);
+    font-size: 15px;
+    line-height: 1.65;
+  }
+
+  .project-carousel {
+    position: relative;
+  }
+
+  .carousel-top {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    align-items: center;
+    margin-bottom: 22px;
+  }
+
+  .carousel-count {
+    color: rgba(244,241,234,.5);
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+  }
+
+  .carousel-controls {
+    display: flex;
+    gap: 10px;
+  }
+
+  .carousel-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+    background: rgba(244,241,234,.04);
+    color: var(--paper);
+    cursor: pointer;
+    transition: background .25s, color .25s, transform .25s;
+  }
+
+  .carousel-btn:hover {
+    background: var(--accent);
+    color: var(--ink);
+    transform: translateY(-1px);
+  }
+
+  .carousel-viewport {
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+    cursor: grab;
+    border-radius: 28px;
+  }
+
+  .carousel-viewport:active { cursor: grabbing; }
+  .carousel-viewport::-webkit-scrollbar { display: none; }
+
+  .carousel-track {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(340px, 620px);
+    gap: 18px;
+  }
+
+  .project-card {
+    min-height: 560px;
+    scroll-snap-align: start;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: clamp(28px, 4vw, 44px);
+    border: 1px solid var(--line);
+    border-radius: 28px;
+    background:
+      linear-gradient(135deg, rgba(244,241,234,.075), rgba(244,241,234,.025)),
+      linear-gradient(180deg, rgba(26,35,24,.96), rgba(12,18,11,.98));
+    box-shadow: 0 30px 80px rgba(0,0,0,.24);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .project-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(280px 260px at 74% 18%, rgba(181,169,110,.16), transparent 70%),
+      linear-gradient(90deg, rgba(244,241,234,.05), transparent 42%);
+  }
+
+  .project-card > * { position: relative; z-index: 1; }
+
+  .project-title {
+    margin-top: 48px;
+    font-family: var(--serif);
+    font-size: clamp(44px, 5vw, 72px);
+    font-weight: 300;
+    line-height: .92;
+    letter-spacing: -0.04em;
+  }
+
+  .project-kind {
+    display: block;
+    margin-top: 18px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .project-own {
+    display: block;
+    margin-bottom: 14px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: rgba(244,241,234,.55);
+  }
+
+  .project-desc {
+    color: rgba(244,241,234,.76);
+    font-size: 15px;
+    line-height: 1.62;
+    text-wrap: pretty;
+  }
+
+  .project-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 28px;
+  }
+
+  .project-tags span {
+    border: 1px solid rgba(244,241,234,.16);
+    border-radius: 999px;
+    padding: 7px 10px;
+    color: rgba(244,241,234,.66);
+    font-family: var(--mono);
+    font-size: 10px;
+    line-height: 1;
+  }
+
+  .project-tags .hi {
+    color: var(--paper);
+    border-color: rgba(181,169,110,.42);
+  }
+
+  .project-link {
+    margin-top: 28px;
+    width: max-content;
+  }
+
+  .carousel-dots {
+    display: flex;
+    gap: 8px;
+    margin-top: 22px;
+  }
+
+  .carousel-dot {
+    width: 28px;
+    height: 4px;
+    border: 0;
+    border-radius: 999px;
+    background: rgba(244,241,234,.25);
+    cursor: pointer;
+  }
+
+  .carousel-dot.active { background: var(--accent); }
+
+  .stack {
+    padding: 124px 0;
+    background: var(--paper-2);
+    color: var(--ink);
+  }
+
+  .stack .section-copy { color: var(--muted); }
+
+  .stack-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    overflow: hidden;
+    border: 1px solid var(--line-dark);
+    border-radius: 28px;
+    background: var(--line-dark);
+  }
+
+  .stack-cell {
+    min-height: 260px;
+    padding: 34px 30px 38px;
+    background: rgba(244,241,234,.78);
+  }
+
+  .stack-cell h3 {
+    margin-top: 34px;
+    margin-bottom: 16px;
+    font-family: var(--serif);
+    font-size: 30px;
+    font-weight: 400;
+    line-height: 1.08;
+    letter-spacing: -0.015em;
+  }
+
+  .stack-cell ul {
+    list-style: none;
+    color: var(--muted);
+    font-size: 14.5px;
+    line-height: 1.78;
+  }
+
+  .stack-cell b {
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  .about {
+    padding: 132px 0;
+    background: var(--paper);
+    color: var(--ink);
+  }
+
+  .about-head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 460px);
+    gap: 56px;
+    align-items: end;
+    margin-bottom: 76px;
+  }
+
+  .about-head p {
+    color: var(--muted);
+    font-size: 17px;
+    line-height: 1.58;
+    text-wrap: pretty;
+  }
+
+  .exp-list {
+    border-top: 1px solid var(--line-dark);
+  }
+
+  .exp-row {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 56px;
+    padding: 38px 0;
+    border-bottom: 1px solid var(--line-dark);
+  }
+
+  .exp-period {
+    padding-top: 10px;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+  }
+
+  .exp-role {
+    margin-bottom: 6px;
+    font-family: var(--serif);
+    font-size: 34px;
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+  }
+
+  .exp-sub {
+    margin-bottom: 16px;
+    color: var(--accent);
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+  }
+
+  .exp-desc {
+    max-width: 740px;
+    color: var(--muted);
+    font-size: 16px;
+    line-height: 1.58;
+    text-wrap: pretty;
+  }
+
+  .help-wrap {
+    margin-top: 108px;
+  }
+
+  .help-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    margin-top: 58px;
+    overflow: hidden;
+    border: 1px solid var(--line-dark);
+    border-radius: 28px;
+    background: var(--line-dark);
+  }
+
+  .help-card {
+    min-height: 320px;
+    padding: 34px 30px;
+    background: rgba(244,241,234,.82);
+    transition: background .3s;
+  }
+
+  .help-card:hover { background: rgba(138,158,114,.22); }
+
+  .help-card h3 {
+    margin-top: 34px;
+    margin-bottom: 16px;
+    font-family: var(--serif);
+    font-size: 28px;
+    font-weight: 400;
+    line-height: 1.12;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+  }
+
+  .help-card p {
+    color: var(--muted);
+    font-size: 14.5px;
+    line-height: 1.62;
+  }
+
+  .final {
+    padding: 148px 0 124px;
+    background:
+      radial-gradient(44% 56% at 76% 24%, rgba(181,169,110,.17), transparent 66%),
+      linear-gradient(180deg, var(--ink-2), var(--ink-3));
+    color: var(--paper);
+  }
+
+  .final-eyebrow {
+    margin-bottom: 40px;
+    color: rgba(244,241,234,.6);
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+  }
+
+  .final h2 {
+    max-width: 13ch;
+    font-family: var(--serif);
+    font-weight: 300;
+    font-size: clamp(58px, 11vw, 168px);
+    line-height: .9;
+    letter-spacing: -0.045em;
+    text-wrap: balance;
+  }
+
+  .final h2 em {
+    color: var(--accent);
+    font-style: italic;
+    font-weight: 400;
+  }
+
+  .final-cta {
+    margin-top: 54px;
+    padding: 14px 12px 14px 24px;
+    border-color: rgba(244,241,234,.36);
+  }
+
+  .final-bullets {
+    max-width: 540px;
+    margin-top: 42px;
+    color: rgba(244,241,234,.65);
+    font-size: 15px;
+    line-height: 1.65;
+  }
+
+  .contact-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 32px;
+    margin-top: 94px;
+    padding-top: 44px;
+    border-top: 1px solid var(--line);
+  }
+
+  .contact-grid .k {
+    margin-bottom: 10px;
+    color: rgba(244,241,234,.55);
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+  }
+
+  .contact-grid .v {
+    color: var(--paper);
+    font-size: 16px;
+    line-height: 1.5;
+  }
+
+  .contact-grid a {
+    border-bottom: 1px solid rgba(244,241,234,.24);
+    transition: color .2s, border-color .2s;
+  }
+
+  .contact-grid a:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+
+  footer {
+    padding: 28px 0 36px;
+    border-top: 1px solid var(--line);
+    background: var(--ink-3);
+    color: rgba(244,241,234,.55);
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+  }
+
+  .footer-row {
+    width: min(1280px, calc(100% - 64px));
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .float-pill {
+    position: fixed;
+    right: 28px;
+    bottom: 28px;
+    z-index: 90;
+    display: inline-flex;
+    align-items: center;
+    gap: 0;
+    padding: 10px;
+    border-radius: 999px;
+    background: rgba(244,241,234,.92);
+    color: var(--ink);
+    font-size: 14px;
+    font-weight: 500;
+    box-shadow: 0 14px 40px rgba(0,0,0,.25), 0 4px 12px rgba(0,0,0,.18);
+    overflow: hidden;
+    transition: transform .25s, gap .35s cubic-bezier(.2,.7,.2,1), padding .35s cubic-bezier(.2,.7,.2,1);
+  }
+
+  .float-pill:hover {
+    transform: translateY(-2px);
+    gap: 10px;
+    padding: 10px 20px 10px 10px;
+  }
+
+  .float-pill .ic {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: var(--ink);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+
+  .float-pill .label {
+    max-width: 0;
+    opacity: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    transition: max-width .35s cubic-bezier(.2,.7,.2,1), opacity .25s;
+  }
+
+  .float-pill:hover .label {
+    max-width: 210px;
+    opacity: 1;
+  }
+
+  [data-i18n] { transition: opacity .25s ease; }
+  body.lang-changing [data-i18n] { opacity: 0; }
+  .reveal { opacity: 1; transform: none; transition: opacity .9s ease, transform .9s cubic-bezier(.2,.7,.2,1); }
+  .reveal.in { opacity: 1; transform: translateY(0); }
+
+  @media (max-width: 980px) {
+    .topbar { padding: 12px 14px; }
+    .topbar-shell { grid-template-columns: 1fr auto; padding: 10px 14px; }
+    .topbar.scrolled .topbar-shell { max-width: 100%; padding: 8px 10px 8px 16px; }
+    .nav { display: none; }
+    .section-inner, .hero-inner, .footer-row { width: min(100% - 40px, 1280px); }
+    .section-head, .about-head { grid-template-columns: 1fr; gap: 24px; }
+    .strip-feats, .stack-grid, .help-grid { grid-template-columns: 1fr 1fr; }
+    .contact-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  @media (max-width: 680px) {
+    .lang { display: none; }
+    .cta-pill { min-height: 38px; padding-left: 14px; font-size: 11px; }
+    .brand { font-size: 20px; }
+    .hero-inner { padding-top: 112px; padding-bottom: 72px; }
+    .hero-title { font-size: clamp(58px, 18vw, 90px); }
+    .hero-eyebrow { align-items: flex-start; flex-wrap: wrap; line-height: 1.7; }
+    .hero-sub { font-size: 16px; }
+    .hero-meta { font-size: 10px; }
+    .strip, .work, .stack, .about, .final { padding-top: 82px; padding-bottom: 86px; }
+    .strip-feats, .stack-grid, .help-grid, .contact-grid { grid-template-columns: 1fr; }
+    .carousel-track { grid-auto-columns: minmax(290px, 88vw); }
+    .project-card { min-height: 610px; border-radius: 24px; }
+    .carousel-top { align-items: flex-start; }
+    .carousel-count { max-width: 160px; line-height: 1.5; }
+    .exp-row { grid-template-columns: 1fr; gap: 12px; }
+    .float-pill { right: 14px; bottom: 14px; padding: 8px; }
+    .float-pill .ic { width: 32px; height: 32px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: .001ms !important;
+      animation-iteration-count: 1 !important;
+      scroll-behavior: auto !important;
+      transition-duration: .001ms !important;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="topbar" id="topbar">
+  <div class="topbar-shell">
+    <a href="#top" class="brand">
+      <span>Eugene</span><span class="reg">®</span>
+    </a>
+    <nav class="nav">
+      <a href="#work" data-i18n="nav.work">Work</a>
+      <a href="#stack" data-i18n="nav.stack">Stack</a>
+      <a href="#about" data-i18n="nav.about">About</a>
+      <a href="#contact" data-i18n="nav.contact">Contact</a>
+    </nav>
+    <div class="topbar-right">
+      <div class="lang" role="tablist" aria-label="Language">
+        <button type="button" data-lang="en" class="active">EN</button>
+        <span class="sep">/</span>
+        <button type="button" data-lang="ru">RU</button>
+      </div>
+      <a class="cta-pill" href="https://t.me/eugenegusakov" target="_blank" rel="noopener">
+        <span data-i18n="nav.cta">Start a project</span>
+        <span class="arr">→</span>
+      </a>
+    </div>
+  </div>
+</div>
+
+<main id="top">
+  <section class="hero" data-dark>
+    <div class="hero-inner">
+      <div class="hero-eyebrow">
+        <span class="status" data-i18n="hero.status">Open for projects</span>
+        <span data-i18n="hero.eyebrow_tail">· 2026 · Worldwide</span>
+      </div>
+
+      <h1 class="hero-title">
+        <span data-i18n="hero.l1">Time to build</span><br>
+        <em data-i18n="hero.l2">AI-native</em><span data-i18n="hero.l3">&nbsp;products,</span><br>
+        <span class="light" data-i18n="hero.l4">end to end.</span>
+      </h1>
+
+      <p class="hero-sub" data-i18n="hero.sub">
+        Nine years in QA across web, mobile and gamedev. Now I ship full products with the help of AI tools — from concept to deploy, with the respect every brief deserves.
+      </p>
+
+      <div class="hero-meta">
+        <div data-i18n="hero.meta1">AI Builder · Fullstack · Designer</div>
+        <div data-i18n="hero.meta2">Solo &amp; team · part-time · remote</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="strip" id="intro">
+    <div class="section-inner">
+      <div class="eyebrow" data-i18n="intro.eyebrow">Approach</div>
+      <h2 class="strip-quote">
+        <span data-i18n="intro.q1">Every product has a story.</span>
+        <em data-i18n="intro.q2">My job is to ship it</em>
+        <span data-i18n="intro.q3">— quickly, with care, and the modern stack it deserves.</span>
+      </h2>
+
+      <div class="strip-feats">
+        <div class="feat reveal">
+          <div class="feat-num">01</div>
+          <div class="feat-h" data-i18n="feat.1h">Concept to deploy</div>
+          <div class="feat-d" data-i18n="feat.1d">Brief, design, build, ship — handled end to end.</div>
+        </div>
+        <div class="feat reveal">
+          <div class="feat-num">02</div>
+          <div class="feat-h" data-i18n="feat.2h">AI in the loop</div>
+          <div class="feat-d" data-i18n="feat.2d">Claude Code, Cursor, MCP and n8n speed up the boring parts.</div>
+        </div>
+        <div class="feat reveal">
+          <div class="feat-num">03</div>
+          <div class="feat-h" data-i18n="feat.3h">QA-first reliability</div>
+          <div class="feat-d" data-i18n="feat.3d">Nine years of testing instincts baked into every release.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="work" id="work" data-dark>
+    <div class="section-inner">
+      <div class="section-head">
+        <h2 class="lux-title"><span data-i18n="work.h1">Selected</span> <em data-i18n="work.h2">work.</em></h2>
+        <p class="section-copy" data-i18n="work.sub">All five projects shipped since the start of 2026. Own SaaS, client sites and landings — each built with AI tools in the workflow.</p>
+      </div>
+
+      <div class="project-carousel" aria-label="Selected projects carousel">
+        <div class="carousel-top">
+          <div class="carousel-count">01 / 05</div>
+          <div class="carousel-controls">
+            <button class="carousel-btn" type="button" data-carousel-prev aria-label="Previous project">←</button>
+            <button class="carousel-btn" type="button" data-carousel-next aria-label="Next project">→</button>
+          </div>
+        </div>
+        <div class="carousel-viewport" data-carousel-viewport>
+          <div class="carousel-track">
+            <article class="project-card">
+              <div>
+                <div class="project-num">01 / 05</div>
+                <h3 class="project-title">ShipReady</h3>
+                <span class="project-kind" data-i18n="p1.kind">SaaS · Developer Tool</span>
+              </div>
+              <div>
+                <span class="project-own" data-i18n="p1.own">Own product · solo build</span>
+                <p class="project-desc" data-i18n="p1.desc">Automated quality gate before launching a web app. Drop a URL — the service runs Lighthouse + Chromium checks for performance, SEO, security, mobile and AI visibility. Returns a confidence-scored report (verified / likely / heuristic) with ready-to-paste fix prompts.</p>
+                <div class="project-tags">
+                  <span class="hi">Next.js 16</span><span class="hi">React 19</span><span class="hi">TypeScript</span><span class="hi">Supabase</span><span>Railway</span><span>OpenAI</span><span>Lighthouse</span><span>Upstash</span>
+                </div>
+              </div>
+            </article>
+
+            <article class="project-card">
+              <div>
+                <div class="project-num">02 / 05</div>
+                <h3 class="project-title">corens</h3>
+                <span class="project-kind" data-i18n="p2.kind">Telegram Mini App</span>
+              </div>
+              <div>
+                <span class="project-own" data-i18n="p2.own">Own product · concept, architecture, build</span>
+                <p class="project-desc" data-i18n="p2.desc">Anonymous discovery inside Telegram. Compatibility matching by mood and interests, consent-based exchange of contacts and photos, a Beacon mode for manual search. Privacy-first: no data leaves a profile without explicit two-sided consent.</p>
+                <div class="project-tags">
+                  <span class="hi">NestJS</span><span class="hi">Next.js</span><span class="hi">TypeScript</span><span class="hi">Prisma</span><span class="hi">Neon Postgres</span><span>Turbo</span><span>Upstash</span><span>Vitest</span>
+                </div>
+              </div>
+            </article>
+
+            <article class="project-card">
+              <div>
+                <div class="project-num">03 / 05</div>
+                <h3 class="project-title">Phoenix Finance</h3>
+                <span class="project-kind" data-i18n="p3.kind">Corporate Site · EN/RU/GE</span>
+              </div>
+              <div>
+                <span class="project-own" data-i18n="p3.own">Client project · in development</span>
+                <p class="project-desc" data-i18n="p3.desc">Trilingual marketing and service site for a Tbilisi-based finance company. Service pages, blog, learning hub, contact forms with rate limiting. Content fully editable through Sanity Studio. Salesforce CRM, Bank of Georgia API, OpenAI integrations.</p>
+                <div class="project-tags">
+                  <span class="hi">Next.js 16</span><span class="hi">React 19</span><span class="hi">TypeScript</span><span class="hi">Sanity CMS</span><span class="hi">next-intl</span><span>Framer Motion</span><span>Zod</span><span>OpenAI</span>
+                </div>
+                <a class="ghost-btn project-link" href="https://phoenix-finance-revolution.vercel.app" target="_blank" rel="noopener" aria-label="Phoenix Finance"><span class="arr">→</span></a>
+              </div>
+            </article>
+
+            <article class="project-card">
+              <div>
+                <div class="project-num">04 / 05</div>
+                <h3 class="project-title">Strategic Sessions</h3>
+                <span class="project-kind" data-i18n="p4.kind">Marketing Landing</span>
+              </div>
+              <div>
+                <span class="project-own" data-i18n="p4.own">Own design · live</span>
+                <p class="project-desc" data-i18n="p4.desc">Landing page for a strategic-session consultant. Animated hero with a hot-air balloon, scroll-triggered motion via GSAP ScrollTrigger, a floating cloud of testimonials. Custom direction inspired by Hedra — no UI kits.</p>
+                <div class="project-tags">
+                  <span class="hi">React 18</span><span class="hi">Vite</span><span class="hi">GSAP ScrollTrigger</span><span>Framer Motion</span><span>CSS3</span>
+                </div>
+                <a class="ghost-btn project-link" href="https://ssselena-land.vercel.app" target="_blank" rel="noopener" aria-label="Strategic Sessions"><span class="arr">→</span></a>
+              </div>
+            </article>
+
+            <article class="project-card">
+              <div>
+                <div class="project-num">05 / 05</div>
+                <h3 class="project-title">Therapy Landing</h3>
+                <span class="project-kind" data-i18n="p5.kind">Marketing Landing</span>
+              </div>
+              <div>
+                <span class="project-own" data-i18n="p5.own">Client project · v1 shipped</span>
+                <p class="project-desc" data-i18n="p5.desc">Site for a body-therapy and psychology specialist. Hero, practice grid, flagship program with modules and tariffs, testimonials, FAQ, contact. Entire content lives in a single content.ts file: editable without touching components.</p>
+                <div class="project-tags">
+                  <span class="hi">Next.js 14</span><span class="hi">TypeScript</span><span class="hi">Tailwind</span><span>Mobile-first</span><span>App Router</span>
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+        <div class="carousel-dots" data-carousel-dots aria-label="Project carousel pagination"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="stack" id="stack">
+    <div class="section-inner">
+      <div class="section-head">
+        <h2 class="lux-title"><span data-i18n="stack.h1">Stack &amp;</span> <em data-i18n="stack.h2">tooling.</em></h2>
+        <p class="section-copy" data-i18n="stack.count">006 categories</p>
+      </div>
+
+      <div class="stack-grid">
+        <div class="stack-cell reveal"><div class="card-num">01</div><h3 data-i18n="stack.s1">Frontend</h3><ul><li><b>Next.js 14 / 16</b></li><li>React 18 / 19</li><li>TypeScript · Tailwind CSS</li><li>Framer Motion · GSAP</li><li>Vite · App Router</li></ul></div>
+        <div class="stack-cell reveal"><div class="card-num">02</div><h3 data-i18n="stack.s2">Backend &amp; DB</h3><ul><li><b>NestJS</b> · FastAPI · Node.js</li><li>Prisma · PostgreSQL · Neon</li><li>Supabase · Auth · RLS</li><li>Upstash Redis · Zod</li></ul></div>
+        <div class="stack-cell reveal"><div class="card-num">03</div><h3 data-i18n="stack.s3">Infrastructure</h3><ul><li><b>Vercel</b> · Railway · Docker</li><li>GitHub · Turbo Monorepo</li><li>Backblaze B2 · Resend</li><li>Sanity CMS · next-intl</li></ul></div>
+        <div class="stack-cell reveal"><div class="card-num">04</div><h3 data-i18n="stack.s4">AI &amp; Tools</h3><ul><li><b>Claude Code</b> · Cursor</li><li>Anthropic API · OpenAI API</li><li>Figma · Rive · Lottie</li><li>Telegram Bot API · Mini Apps</li></ul></div>
+        <div class="stack-cell reveal"><div class="card-num">05</div><h3 data-i18n="stack.s5">Automation</h3><ul><li><b>n8n</b> (self-hosted)</li><li>Make (Integromat)</li><li>MCP (Model Context Protocol)</li><li><span data-i18n="stack.s5b">→ active focus</span></li></ul></div>
+        <div class="stack-cell reveal"><div class="card-num">06</div><h3 data-i18n="stack.s6">QA · 9 years</h3><ul><li><span data-i18n="stack.s6a">Web · Mobile · Gamedev</span></li><li><span data-i18n="stack.s6b">Spec-first development</span></li><li><span data-i18n="stack.s6c">Edge cases · regression</span></li><li><span data-i18n="stack.s6d">Architecture documentation</span></li></ul></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="about" id="about">
+    <div class="section-inner">
+      <div class="about-head">
+        <h2 class="lux-title"><span data-i18n="exp.h1">A short</span> <em data-i18n="exp.h2">history.</em></h2>
+        <p data-i18n="exp.intro">Ten years of building and breaking software. Half spent finding edge cases for other people's code; half spent shipping my own.</p>
+      </div>
+
+      <div class="exp-list">
+        <div class="exp-row reveal">
+          <div class="exp-period">2025 — <span data-i18n="exp.now">now</span></div>
+          <div>
+            <div class="exp-role" data-i18n="exp.r1">AI-Native Developer &amp; Designer</div>
+            <div class="exp-sub" data-i18n="exp.s1">Freelance · independent</div>
+            <p class="exp-desc" data-i18n="exp.d1">Building products with AI tools — concept to deploy. Own SaaS (ShipReady, corens) plus client work (Phoenix Finance, landings). Full cycle: brief → design → build → ship.</p>
+          </div>
+        </div>
+        <div class="exp-row reveal">
+          <div class="exp-period">2016 — 2025</div>
+          <div>
+            <div class="exp-role" data-i18n="exp.r2">QA Engineer</div>
+            <div class="exp-sub" data-i18n="exp.s2">Web · Mobile · Gamedev · 9 years</div>
+            <p class="exp-desc" data-i18n="exp.d2">Test design and execution across web apps, mobile products and games. Test cases, edge-case discovery, regression suites, QA process building. Last day on the team — December 31, 2025. Directly shapes how I think about reliability and architecture today.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="help-wrap">
+        <div class="eyebrow" data-i18n="help.over">How I can help</div>
+        <div class="about-head" style="margin: 28px 0 0">
+          <h2 class="lux-title"><span data-i18n="help.h1">Six ways</span> <em data-i18n="help.h2">I ship.</em></h2>
+          <p data-i18n="help.sub">From a landing page to a full product with AI inside — covering design, code, deploy and the boring parts in between.</p>
+        </div>
+        <div class="help-grid">
+          <div class="help-card reveal"><div class="help-num">01</div><h3 data-i18n="help.c1h">Need a website or landing</h3><p data-i18n="help.c1d">Fast, animated, responsive on any screen. Multilingual, CMS so you can edit content yourself, forms with spam protection. The result is a live page — not a Figma mockup.</p></div>
+          <div class="help-card reveal"><div class="help-num">02</div><h3 data-i18n="help.c2h">Need a working product, not just a frontend</h3><p data-i18n="help.c2d">Auth, database, API, user dashboard — the full cycle from interface to backend. Architecture built so the product can grow without a rewrite.</p></div>
+          <div class="help-card reveal"><div class="help-num">03</div><h3 data-i18n="help.c3h">Need to ship and stay up</h3><p data-i18n="help.c3d">Deploy, hosting, domain, monitoring. The product keeps working after handover — not just on the demo from my laptop.</p></div>
+          <div class="help-card reveal"><div class="help-num">04</div><h3 data-i18n="help.c4h">Need AI inside the product</h3><p data-i18n="help.c4d">A chatbot with your business context, smart search across documents, content generation, automated client replies. Anthropic or OpenAI integration — without hallucinations or made-up facts.</p></div>
+          <div class="help-card reveal"><div class="help-num">05</div><h3 data-i18n="help.c5h">Need to remove the manual work</h3><p data-i18n="help.c5d">Form submissions go straight into the CRM. New client — automatic email. Payment received — Telegram notification. I wire services together so the routine runs without you.</p></div>
+          <div class="help-card reveal"><div class="help-num">06</div><h3 data-i18n="help.c6h">Need a Telegram bot or mini app</h3><p data-i18n="help.c6d">Bots for booking, sales, notifications and support. Telegram Mini Apps — a full product inside the messenger, no separate app needed.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="final" id="contact" data-dark>
+    <div class="section-inner">
+      <div class="final-eyebrow" data-i18n="final.eyebrow">Let's talk · 2026</div>
+      <h2>
+        <span data-i18n="final.l1">Got a brief?</span><br>
+        <em data-i18n="final.l2">Eugene ships it.</em>
+      </h2>
+      <a class="final-cta" href="https://t.me/eugenegusakov" target="_blank" rel="noopener">
+        <span data-i18n="final.cta">Start a project</span>
+        <span class="arr">→</span>
+      </a>
+      <p class="final-bullets" data-i18n="final.bullets">No agency overhead, personal handling, an honest reply within 48 hours.</p>
+
+      <div class="contact-grid">
+        <div><div class="k" data-i18n="final.k1">Email</div><div class="v"><a href="mailto:egusakov74@gmail.com">egusakov74@gmail.com</a></div></div>
+        <div><div class="k" data-i18n="final.k2">Telegram</div><div class="v"><a href="https://t.me/eugenegusakov" target="_blank" rel="noopener">@eugenegusakov</a></div></div>
+        <div><div class="k" data-i18n="final.k3">Based in</div><div class="v" data-i18n="final.v3">Worlwide</div></div>
+        <div><div class="k" data-i18n="final.k4">Languages</div><div class="v" data-i18n="final.v4">Russian · English</div></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="footer-row">
+    <span data-i18n="ft.l">© 2026 Eugene · AI-Native Builder</span>
+    <span data-i18n="ft.r">Hand-built · Updated April 2026</span>
+  </div>
+</footer>
+
+<a class="float-pill" href="https://t.me/eugenegusakov" target="_blank" rel="noopener" aria-label="Telegram">
+  <span class="ic">tg</span>
+  <span class="label" data-i18n="float.tg">Telegram me</span>
+</a>
+
+<script>
+const I18N = {
+  en: {
+    "nav.work": "Work", "nav.stack": "Stack", "nav.about": "About", "nav.contact": "Contact", "nav.cta": "Start a project",
+    "hero.status": "Open for projects", "hero.eyebrow_tail": "· 2026 · Worldwide",
+    "hero.l1": "Time to build", "hero.l2": "AI-native", "hero.l3": "\u00a0products,", "hero.l4": "end to end.",
+    "hero.sub": "Nine years in QA across web, mobile and gamedev. Now I ship full products with the help of AI tools — from concept to deploy, with the respect every brief deserves.",
+    "hero.meta1": "AI Builder · Fullstack · Designer", "hero.meta2": "Solo & team · part-time · remote",
+    "intro.eyebrow": "Approach", "intro.q1": "Every product has a story.", "intro.q2": "My job is to ship it", "intro.q3": "— quickly, with care, and the modern stack it deserves.",
+    "feat.1h": "Concept to deploy", "feat.1d": "Brief, design, build, ship — handled end to end.", "feat.2h": "AI in the loop", "feat.2d": "Claude Code, Cursor, MCP and n8n speed up the boring parts.", "feat.3h": "QA-first reliability", "feat.3d": "Nine years of testing instincts baked into every release.",
+    "work.h1": "Selected", "work.h2": "work.", "work.sub": "All five projects shipped since the start of 2026. Own SaaS, client sites and landings — each built with AI tools in the workflow.",
+    "p1.kind": "SaaS · Developer Tool", "p1.own": "Own product · solo build", "p1.desc": "Automated quality gate before launching a web app. Drop a URL — the service runs Lighthouse + Chromium checks for performance, SEO, security, mobile and AI visibility. Returns a confidence-scored report (verified / likely / heuristic) with ready-to-paste fix prompts.",
+    "p2.kind": "Telegram Mini App", "p2.own": "Own product · concept, architecture, build", "p2.desc": "Anonymous discovery inside Telegram. Compatibility matching by mood and interests, consent-based exchange of contacts and photos, a Beacon mode for manual search. Privacy-first: no data leaves a profile without explicit two-sided consent.",
+    "p3.kind": "Corporate Site · EN/RU/GE", "p3.own": "Client project · in development", "p3.desc": "Trilingual marketing and service site for a Tbilisi-based finance company. Service pages, blog, learning hub, contact forms with rate limiting. Content fully editable through Sanity Studio. Salesforce CRM, Bank of Georgia API, OpenAI integrations.",
+    "p4.kind": "Marketing Landing", "p4.own": "Own design · live", "p4.desc": "Landing page for a strategic-session consultant. Animated hero with a hot-air balloon, scroll-triggered motion via GSAP ScrollTrigger, a floating cloud of testimonials. Custom direction inspired by Hedra — no UI kits.",
+    "p5.kind": "Marketing Landing", "p5.own": "Client project · v1 shipped", "p5.desc": "Site for a body-therapy and psychology specialist. Hero, practice grid, flagship program with modules and tariffs, testimonials, FAQ, contact. Entire content lives in a single content.ts file: editable without touching components.",
+    "stack.h1": "Stack &", "stack.h2": "tooling.", "stack.count": "006 categories", "stack.s1": "Frontend", "stack.s2": "Backend & DB", "stack.s3": "Infrastructure", "stack.s4": "AI & Tools", "stack.s5": "Automation", "stack.s5b": "→ active focus", "stack.s6": "QA · 9 years", "stack.s6a": "Web · Mobile · Gamedev", "stack.s6b": "Spec-first development", "stack.s6c": "Edge cases · regression", "stack.s6d": "Architecture documentation",
+    "exp.h1": "A short", "exp.h2": "history.", "exp.intro": "Ten years of building and breaking software. Half spent finding edge cases for other people's code; half spent shipping my own.", "exp.now": "now", "exp.r1": "AI-Native Developer & Designer", "exp.s1": "Freelance · independent", "exp.d1": "Building products with AI tools — concept to deploy. Own SaaS (ShipReady, corens) plus client work (Phoenix Finance, landings). Full cycle: brief → design → build → ship.", "exp.r2": "QA Engineer", "exp.s2": "Web · Mobile · Gamedev · 9 years", "exp.d2": "Test design and execution across web apps, mobile products and games. Test cases, edge-case discovery, regression suites, QA process building. Last day on the team — December 31, 2025. Directly shapes how I think about reliability and architecture today.",
+    "help.over": "How I can help", "help.h1": "Six ways", "help.h2": "I ship.", "help.sub": "From a landing page to a full product with AI inside — covering design, code, deploy and the boring parts in between.", "help.c1h": "Need a website or landing", "help.c1d": "Fast, animated, responsive on any screen. Multilingual, CMS so you can edit content yourself, forms with spam protection. The result is a live page — not a Figma mockup.", "help.c2h": "Need a working product, not just a frontend", "help.c2d": "Auth, database, API, user dashboard — the full cycle from interface to backend. Architecture built so the product can grow without a rewrite.", "help.c3h": "Need to ship and stay up", "help.c3d": "Deploy, hosting, domain, monitoring. The product keeps working after handover — not just on the demo from my laptop.", "help.c4h": "Need AI inside the product", "help.c4d": "A chatbot with your business context, smart search across documents, content generation, automated client replies. Anthropic or OpenAI integration — without hallucinations or made-up facts.", "help.c5h": "Need to remove the manual work", "help.c5d": "Form submissions go straight into the CRM. New client — automatic email. Payment received — Telegram notification. I wire services together so the routine runs without you.", "help.c6h": "Need a Telegram bot or mini app", "help.c6d": "Bots for booking, sales, notifications and support. Telegram Mini Apps — a full product inside the messenger, no separate app needed.",
+    "final.eyebrow": "Let's talk · 2026", "final.l1": "Got a brief?", "final.l2": "Eugene ships it.", "final.cta": "Start a project", "final.bullets": "No agency overhead, personal handling, an honest reply within 48 hours.", "final.k1": "Email", "final.k2": "Telegram", "final.k3": "Based in", "final.v3": "Minsk · Remote-first", "final.k4": "Languages", "final.v4": "Russian · English", "ft.l": "© 2026 Eugene · AI-Native Builder", "ft.r": "Hand-built · Updated April 2026", "float.tg": "Telegram me"
+  },
+  ru: {
+    "nav.work": "Проекты", "nav.stack": "Стек", "nav.about": "Опыт", "nav.contact": "Контакты", "nav.cta": "Начать проект",
+    "hero.status": "Открыт к проектам", "hero.eyebrow_tail": "· 2026 · Минск → Remote",
+    "hero.l1": "Время собирать", "hero.l2": "AI-native", "hero.l3": "\u00a0продукты,", "hero.l4": "от и до.",
+    "hero.sub": "9 лет QA в web, mobile и gamedev. Теперь собираю целые продукты с помощью AI-инструментов — от идеи до деплоя, с уважением, которого заслуживает каждый бриф.",
+    "hero.meta1": "AI Builder · Fullstack · Designer", "hero.meta2": "Соло и в команде · part-time · remote",
+    "intro.eyebrow": "Подход", "intro.q1": "У каждого продукта есть своя история.", "intro.q2": "Моя работа — выпустить её", "intro.q3": "— быстро, аккуратно, на современном стеке.",
+    "feat.1h": "От идеи до деплоя", "feat.1d": "Бриф, дизайн, разработка, релиз — всё в одних руках.", "feat.2h": "AI в процессе", "feat.2d": "Claude Code, Cursor, MCP и n8n снимают рутину.", "feat.3h": "QA-надёжность", "feat.3d": "Девять лет тестировщика — в каждом релизе.",
+    "work.h1": "Избранные", "work.h2": "работы.", "work.sub": "Все пять проектов сделаны с начала 2026 года. Свои SaaS, клиентские сайты и лендинги — каждый с AI-инструментами в процессе.",
+    "p1.kind": "SaaS · Инструмент для разработчиков", "p1.own": "Собственный продукт · соло", "p1.desc": "Автоматический quality gate перед запуском веб-приложения. Вводишь URL — сервис прогоняет его через Lighthouse и Chromium, проверяет производительность, SEO, безопасность, мобильную адаптацию и AI-видимость. Выдаёт отчёт с уровнями уверенности и готовыми промптами для фикса.",
+    "p2.kind": "Telegram Mini App", "p2.own": "Собственный продукт · концепция, архитектура, разработка", "p2.desc": "Сервис для анонимного знакомства внутри Telegram. Матчинг по совместимости состояний и интересов, consent-based обмен контактами и фото, режим Beacon для ручного поиска. Privacy-first: никаких данных без явного согласия обеих сторон.",
+    "p3.kind": "Корпоративный сайт · EN/RU/GE", "p3.own": "Клиентский проект · в разработке", "p3.desc": "Многоязычный маркетинговый и сервисный сайт для финансовой компании из Тбилиси. Страницы услуг, блог, обучающий раздел, контактные формы с rate limiting. Контент управляется через Sanity Studio. Интеграции — Salesforce CRM, Bank of Georgia API, OpenAI.",
+    "p4.kind": "Маркетинговый лендинг", "p4.own": "Свой дизайн · live", "p4.desc": "Лендинг для консультанта по стратегическим сессиям. Анимированный герой с воздушным шаром, scroll-триггерные анимации через GSAP ScrollTrigger, плавающее облако отзывов. Кастомный подход в духе Hedra — без UI-китов.",
+    "p5.kind": "Маркетинговый лендинг", "p5.own": "Клиентский проект · v1 готов", "p5.desc": "Сайт для специалиста по телесной терапии и психологии. Герой, сетка практик, флагманская программа с модулями и тарифами, отзывы, FAQ, контакты. Весь контент в едином content.ts — без редактирования компонентов.",
+    "stack.h1": "Стек и", "stack.h2": "инструменты.", "stack.count": "006 категорий", "stack.s1": "Frontend", "stack.s2": "Backend и БД", "stack.s3": "Инфраструктура", "stack.s4": "AI и инструменты", "stack.s5": "Автоматизация", "stack.s5b": "→ в активном развитии", "stack.s6": "QA · 9 лет", "stack.s6a": "Web · Mobile · Gamedev", "stack.s6b": "Spec-First разработка", "stack.s6c": "Edge cases · регрессия", "stack.s6d": "Архитектурная документация",
+    "exp.h1": "Краткая", "exp.h2": "история.", "exp.intro": "10 лет в разработке и тестировании. Половину — искал edge cases в чужом коде; половину — собираю свой.", "exp.now": "наст. время", "exp.r1": "AI-Native Developer & Designer", "exp.s1": "Фриланс · самозанятый", "exp.d1": "Разработка продуктов с помощью AI-инструментов — от концепции до деплоя. Собственные SaaS (ShipReady, corens) и клиентские проекты (Phoenix Finance, лендинги). Полный цикл: бриф → дизайн → разработка → деплой.", "exp.r2": "QA Engineer", "exp.s2": "Web · Mobile · Gamedev · 9 лет", "exp.d2": "Тестирование веб-приложений, мобильных продуктов и игр. Тест-кейсы, edge cases, регрессия, выстраивание QA-процессов. Последний рабочий день — 31 декабря 2025. Этот опыт напрямую формирует подход к надёжности и архитектуре сегодня.",
+    "help.over": "Чем могу помочь", "help.h1": "Шесть способов", "help.h2": "запускать.", "help.sub": "От лендинга до продукта с AI внутри — дизайн, код, деплой и вся рутина между ними.", "help.c1h": "Нужен сайт или лендинг", "help.c1d": "Быстро, анимированно, адаптивно на любом экране. Мультиязычность, CMS для самостоятельного редактирования контента, формы с защитой от спама. Результат — живая страница, не Figma-макет.", "help.c2h": "Нужен рабочий продукт, не только фронтенд", "help.c2d": "Авторизация, база данных, API, кабинет пользователя — полный цикл от интерфейса до backend. Архитектура без переписывания при росте продукта.", "help.c3h": "Нужно запустить и не уронить", "help.c3d": "Деплой, хостинг, домен, мониторинг. Продукт продолжает работать после передачи — не только на демо с моего ноутбука.", "help.c4h": "Нужен AI внутри продукта", "help.c4d": "Чатбот с бизнес-контекстом, умный поиск по документам, генерация контента, автоматические ответы клиентам. Anthropic или OpenAI интеграция — без галлюцинаций и выдуманных фактов.", "help.c5h": "Нужно убрать ручную работу", "help.c5d": "Заявки из формы сразу попадают в CRM. Новый клиент — автоматическое письмо. Оплата прошла — уведомление в Telegram. Я связываю сервисы так, чтобы рутина ехала сама.", "help.c6h": "Нужен Telegram bot или mini app", "help.c6d": "Боты для записи, продаж, уведомлений и поддержки. Telegram Mini Apps — полноценный продукт внутри мессенджера, без отдельного приложения.",
+    "final.eyebrow": "Поговорим · 2026", "final.l1": "Есть задача?", "final.l2": "Eugene её решит.", "final.cta": "Начать проект", "final.bullets": "Без агентских накруток, личное ведение, честный ответ в течение 48 часов.", "final.k1": "Email", "final.k2": "Telegram", "final.k3": "Локация", "final.v3": "Worldwide", "final.k4": "Языки", "final.v4": "Русский · Английский", "ft.l": "© 2026 Eugene · AI-Native Builder", "ft.r": "Сделано вручную · Обновлено апрель 2026", "float.tg": "Написать в Telegram"
+  }
+};
+
+const langButtons = document.querySelectorAll('.lang button');
+const stored = localStorage.getItem('eg.lang');
+let currentLang = (stored === 'ru' || stored === 'en') ? stored : (navigator.language && navigator.language.startsWith('ru') ? 'ru' : 'en');
+
+function applyLang(lang, animate) {
+  const dict = I18N[lang];
+  if (!dict) return;
+  const swap = () => {
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      if (dict[key] != null) el.textContent = dict[key];
+    });
+    document.documentElement.lang = lang;
+    document.title = lang === 'ru' ? 'Eugene — AI-Native Builder & Дизайнер' : 'Eugene — AI-Native Builder & Designer';
+    langButtons.forEach(b => b.classList.toggle('active', b.dataset.lang === lang));
+  };
+  if (animate) {
+    document.body.classList.add('lang-changing');
+    setTimeout(() => {
+      swap();
+      requestAnimationFrame(() => document.body.classList.remove('lang-changing'));
+    }, 220);
+  } else {
+    swap();
+  }
+  currentLang = lang;
+  try { localStorage.setItem('eg.lang', lang); } catch {}
+}
+
+langButtons.forEach(btn => {
+  btn.addEventListener('click', () => {
+    const next = btn.dataset.lang;
+    if (next !== currentLang) applyLang(next, true);
+  });
+});
+applyLang(currentLang, false);
+
+const topbar = document.getElementById('topbar');
+const darkSections = [document.querySelector('.hero'), document.querySelector('.work'), document.querySelector('.final')];
+const sections = ['#work', '#stack', '#about', '#contact'].map(s => document.querySelector(s)).filter(Boolean);
+const navLinks = document.querySelectorAll('.nav a');
+
+function updateTopbar() {
+  const y = window.scrollY + 40;
+  const onDark = darkSections.some(s => s && y >= s.offsetTop && y < s.offsetTop + s.offsetHeight);
+  topbar.classList.toggle('dark', !onDark);
+  topbar.classList.toggle('scrolled', window.scrollY > 60);
+
+  const activeY = window.scrollY + 140;
+  let active = null;
+  for (const sec of sections) {
+    if (sec.offsetTop <= activeY) active = '#' + sec.id;
+  }
+  navLinks.forEach(a => a.toggleAttribute('data-current', a.getAttribute('href') === active));
+}
+
+window.addEventListener('scroll', updateTopbar, { passive: true });
+window.addEventListener('resize', updateTopbar);
+updateTopbar();
+
+const viewport = document.querySelector('[data-carousel-viewport]');
+const cards = Array.from(document.querySelectorAll('.project-card'));
+const dotsWrap = document.querySelector('[data-carousel-dots]');
+
+cards.forEach((_, index) => {
+  const dot = document.createElement('button');
+  dot.type = 'button';
+  dot.className = 'carousel-dot';
+  dot.setAttribute('aria-label', `Go to project ${index + 1}`);
+  dot.addEventListener('click', () => cards[index].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' }));
+  dotsWrap.appendChild(dot);
+});
+
+function updateDots() {
+  if (!viewport) return;
+  const viewportLeft = viewport.getBoundingClientRect().left;
+  let active = 0;
+  let min = Infinity;
+  cards.forEach((card, index) => {
+    const diff = Math.abs(card.getBoundingClientRect().left - viewportLeft);
+    if (diff < min) { min = diff; active = index; }
+  });
+  dotsWrap.querySelectorAll('.carousel-dot').forEach((dot, index) => dot.classList.toggle('active', index === active));
+}
+
+document.querySelector('[data-carousel-prev]').addEventListener('click', () => viewport.scrollBy({ left: -viewport.clientWidth * .82, behavior: 'smooth' }));
+document.querySelector('[data-carousel-next]').addEventListener('click', () => viewport.scrollBy({ left: viewport.clientWidth * .82, behavior: 'smooth' }));
+viewport.addEventListener('scroll', updateDots, { passive: true });
+window.addEventListener('resize', updateDots);
+updateDots();
+
+let isDown = false;
+let startX = 0;
+let scrollLeft = 0;
+viewport.addEventListener('pointerdown', (event) => {
+  isDown = true;
+  startX = event.pageX;
+  scrollLeft = viewport.scrollLeft;
+  viewport.setPointerCapture(event.pointerId);
+});
+viewport.addEventListener('pointermove', (event) => {
+  if (!isDown) return;
+  viewport.scrollLeft = scrollLeft - (event.pageX - startX);
+});
+viewport.addEventListener('pointerup', () => { isDown = false; });
+viewport.addEventListener('pointerleave', () => { isDown = false; });
+
+const io = new IntersectionObserver((entries) => {
+  for (const entry of entries) {
+    if (!entry.isIntersecting) continue;
+    entry.target.classList.add('in');
+    io.unobserve(entry.target);
+  }
+}, { threshold: .12 });
+
+document.querySelectorAll('.reveal, .project-card, .strip-quote').forEach(el => io.observe(el));
+</script>
+</body>
+</html>
