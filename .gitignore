@@ -1,2 +1,5 @@
 .DS_Store
 output/
+.claude/
+CLAUDE.md
+AGENTS.md
