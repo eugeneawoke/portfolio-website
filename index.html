@@ -66,7 +66,7 @@
     --mono:       'JetBrains Mono', ui-monospace, monospace;
   }
 
-  html { scroll-behavior: smooth; background: var(--ink); }
+  html { scroll-behavior: smooth; background: var(--ink); scroll-padding-top: 80px; }
   body {
     background: var(--paper);
     color: var(--ink);
@@ -363,6 +363,7 @@
   .hero {
     position: relative;
     min-height: 100vh;
+    min-height: 100svh;
     background: var(--ink);
     color: var(--paper);
     overflow: hidden;
@@ -417,6 +418,7 @@
     position: relative;
     z-index: 2;
     min-height: 100vh;
+    min-height: 100svh;
     padding: 120px 32px 56px;
     display: flex;
     flex-direction: column;
@@ -749,6 +751,9 @@
     color: var(--accent);
     margin-bottom: 12px;
     display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .proj-desc {
     font-size: 15px;
@@ -1292,6 +1297,12 @@
   /* reveal */
   .reveal { opacity: 1; transform: none; transition: opacity .9s ease, transform .9s cubic-bezier(.2,.7,.2,1); }
   .reveal.in { opacity: 1; transform: translateY(0); }
+
+  /* ── mobile fixes ── */
+  @media (max-width: 640px) {
+    .hero-meta { letter-spacing: 0.06em; }
+    footer { padding: 24px 20px 28px; }
+  }
 </style>
 </head>
 <body>
@@ -1355,7 +1366,7 @@
 
     <h1 class="hero-title">
       <span data-i18n="hero.l1">Time to build</span><br>
-      <em data-i18n="hero.l2">AI-native</em><span data-i18n="hero.l3">&nbsp;products,</span><br>
+      <em data-i18n="hero.l2">AI&#8209;native</em><span data-i18n="hero.l3">&nbsp;products,</span><br>
       <span class="light" data-i18n="hero.l4">end to end.</span>
     </h1>
 
@@ -1620,7 +1631,7 @@
 
     <div class="exp-list">
       <div class="exp-row">
-        <div class="exp-period">2025 — <span data-i18n="exp.now">now</span></div>
+        <div class="exp-period">2026 — <span data-i18n="exp.now">now</span></div>
         <div>
           <div class="exp-role" data-i18n="exp.r1">AI-Native Developer &amp; Designer</div>
           <div class="exp-sub" data-i18n="exp.s1">Freelance · independent</div>
@@ -1733,8 +1744,8 @@
 <!-- footer -->
 <footer>
   <div class="footer-row">
-    <span data-i18n="ft.l">© 2026 Eugene · AI-Native Builder</span>
-    <span data-i18n="ft.r">crafted with love ♥ by Eugene</span>
+    <span data-i18n="ft.l">© 2026 Eugene Gusakov</span>
+    <span data-i18n="ft.r">AI-Native Full Stack Developer · UI Designer</span>
   </div>
 </footer>
 
@@ -1762,10 +1773,10 @@ const I18N = {
     "hero.status": "Open for projects",
     "hero.loc": "· 2026 · Worldwide",
     "hero.l1": "Time to build",
-    "hero.l2": "AI-native",
+    "hero.l2": "AI‑native",
     "hero.l3": "\u00a0products,",
     "hero.l4": "end to end.",
-    "hero.sub": "Fullstack developer and UI designer, open to remote worldwide. 9 years in QA — now I ship complete products with AI tools: from concept to production. Next.js · TypeScript · Supabase · Anthropic API.",
+    "hero.sub": "Fullstack developer and UI designer, open to remote worldwide. 9 years in QA — now I build complete products: solo, fast, with AI in every layer. From concept to production. Next.js · TypeScript · Supabase · Anthropic API.",
     "hero.cta": "Start a project",
     "hero.meta1": "AI-Native Full Stack Developer · UI Designer",
     "hero.meta2": "Solo & team · part-time · remote",
@@ -1791,7 +1802,7 @@ const I18N = {
     "p1.own": "Own product · live, in progress",
     "p1.desc": "Automated quality gate before launching a web app. Drop a URL — the service runs Lighthouse + Chromium checks for performance, SEO, security, mobile and AI visibility. Returns a confidence-scored report (verified / likely / heuristic) with ready-to-paste fix prompts.",
     "p2.kind": "Telegram Mini App",
-    "p2.own": "Own product · concept, architecture, build",
+    "p2.own": "Own product · live · closed alpha",
     "p2.desc": "Anonymous discovery inside Telegram. Compatibility matching by mood and interests, consent-based exchange of contacts and photos, a Beacon mode for manual browsing. Privacy-first: no data leaves a profile without explicit two-sided consent.",
     "p3.kind": "Corporate Site · EN/RU/GE",
     "p3.own": "Client project · in development",
@@ -1820,14 +1831,14 @@ const I18N = {
 
     "exp.h1": "A short",
     "exp.h2": "history.",
-    "exp.intro": "9 years in QA across gamedev, SaaS, and web taught me to see risks, edge cases, and product quality early. Now I apply that discipline to fullstack development — Next.js, TypeScript, Supabase, FastAPI, Anthropic and OpenAI APIs.",
+    "exp.intro": "9 years in QA across gamedev, SaaS, and web shaped how I think: reliability by design, specs before code, edge cases caught early. Now I apply that discipline to fullstack development — Next.js, TypeScript, Supabase, FastAPI, Anthropic and OpenAI APIs.",
     "exp.now": "now",
     "exp.r1": "Fullstack Developer & AI-Native Builder",
     "exp.s1": "Freelance · independent",
     "exp.d1": "Building products with AI tools — concept to deploy. Own SaaS (ShipReady, corens) plus client work (Phoenix Finance, landings). Full cycle: brief → design → build → ship.",
     "exp.r2": "QA Engineer",
     "exp.s2": "Web · Mobile · Gamedev · 9 years",
-    "exp.d2": "Test design and execution across web apps, mobile products and games. Test cases, edge-case discovery, regression suites, QA process building. Last day on the team — December 31, 2025. Directly shapes how I think about reliability and architecture today.",
+    "exp.d2": "Test design and execution across gamedev, SaaS, and web — mobile products, games, and web apps. Test cases, edge-case discovery, regression suites, QA process building. Last day on the team — December 31, 2025. Directly shapes how I think about reliability and architecture today.",
 
     "lf.over": "What I'm looking for",
     "lf.yesH": "Yes, please.",
@@ -1874,8 +1885,8 @@ const I18N = {
     "final.languages": "Communication languages",
     "final.languageList": "Russian · English",
 
-    "ft.l": "© 2026 Eugene Gusakov · Fullstack Developer & AI-Native Builder",
-    "ft.r": "crafted with love ♥ by Eugene",
+    "ft.l": "© 2026 Eugene Gusakov",
+    "ft.r": "AI-Native Full Stack Developer · UI Designer",
     "float.tg": "Telegram me"
   },
   ru: {
@@ -1891,10 +1902,10 @@ const I18N = {
     "hero.status": "Открыт к проектам",
     "hero.loc": "· 2026 · По всему миру",
     "hero.l1": "Время собирать",
-    "hero.l2": "AI-native",
+    "hero.l2": "AI‑native",
     "hero.l3": "\u00a0продукты,",
     "hero.l4": "от и до.",
-    "hero.sub": "Fullstack-разработчик и UI-дизайнер, открыт к удалённой работе. 9 лет в QA — теперь собираю продукты с помощью AI-инструментов: от концепции до продакшна. Next.js · TypeScript · Supabase · Anthropic API.",
+    "hero.sub": "Fullstack-разработчик и UI-дизайнер, открыт к удалённой работе. 9 лет в QA — теперь собираю продукты соло, быстро, с AI в каждом слое: от концепции до продакшна. Next.js · TypeScript · Supabase · Anthropic API.",
     "hero.cta": "Начать проект",
     "hero.meta1": "AI-Native Full Stack Developer · UI Designer",
     "hero.meta2": "Соло и в команде · part-time · remote",
@@ -1920,7 +1931,7 @@ const I18N = {
     "p1.own": "Собственный продукт · live, дорабатывается",
     "p1.desc": "Автоматический quality gate перед запуском веб-приложения. Вводишь URL — сервис прогоняет его через Lighthouse и Chromium, проверяет производительность, SEO, безопасность, мобильную адаптацию и AI-видимость. Выдаёт отчёт с уровнями уверенности и готовыми промптами для фикса.",
     "p2.kind": "Telegram Mini App",
-    "p2.own": "Собственный продукт · концепция, архитектура, разработка",
+    "p2.own": "Собственный продукт · live · закрытая альфа",
     "p2.desc": "Сервис для анонимного знакомства внутри Telegram. Матчинг по совместимости состояний и интересов, consent-based обмен контактами и фото, режим Маяк для ручного поиска. Privacy-first: никаких данных без явного согласия обеих сторон.",
     "p3.kind": "Корпоративный сайт · EN/RU/GE",
     "p3.own": "Клиентский проект · в разработке",
@@ -1949,14 +1960,14 @@ const I18N = {
 
     "exp.h1": "Краткая",
     "exp.h2": "история.",
-    "exp.intro": "9 лет QA в gamedev, SaaS и вебе научили видеть риски, edge cases и качество продукта на ранних этапах. Теперь этот опыт — в fullstack-разработке: Next.js, TypeScript, Supabase, FastAPI, Anthropic и OpenAI API.",
+    "exp.intro": "9 лет QA в gamedev, SaaS и вебе сформировали подход: надёжность в дизайне, спецификации до кода, edge cases — с первых шагов. Теперь этот опыт — в fullstack-разработке: Next.js, TypeScript, Supabase, FastAPI, Anthropic и OpenAI API.",
     "exp.now": "наст. время",
     "exp.r1": "Fullstack Developer & AI-Native Builder",
     "exp.s1": "Фриланс · самозанятый",
     "exp.d1": "Разработка продуктов с помощью AI-инструментов — от концепции до деплоя. Собственные SaaS (ShipReady, corens) и клиентские проекты (Phoenix Finance, лендинги). Полный цикл: бриф → дизайн → разработка → деплой.",
     "exp.r2": "QA Engineer",
     "exp.s2": "Web · Mobile · Gamedev · 9 лет",
-    "exp.d2": "Тестирование веб-приложений, мобильных продуктов и игр. Тест-кейсы, edge cases, регрессия, выстраивание QA-процессов. Последний рабочий день — 31 декабря 2025. Этот опыт напрямую формирует подход к надёжности и архитектуре сегодня.",
+    "exp.d2": "Тестирование в gamedev, SaaS и вебе — мобильные продукты, игры и веб-приложения. Тест-кейсы, edge cases, регрессия, выстраивание QA-процессов. Последний рабочий день — 31 декабря 2025. Этот опыт напрямую формирует подход к надёжности и архитектуре сегодня.",
 
     "lf.over": "Что ищу",
     "lf.yesH": "Да, хочу.",
@@ -2003,8 +2014,8 @@ const I18N = {
     "final.languages": "Языки коммуникации",
     "final.languageList": "Русский · Английский",
 
-    "ft.l": "© 2026 Евгений Гусаков · Fullstack Developer & AI-Native Builder",
-    "ft.r": "crafted with love ♥ by Eugene",
+    "ft.l": "© 2026 Евгений Гусаков",
+    "ft.r": "AI-Native Full Stack Developer · UI Designer",
     "float.tg": "Написать в Telegram"
   }
 };
